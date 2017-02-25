@@ -1,0 +1,99 @@
+---
+title: "Weight Tracker"
+runtime: shiny
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    source_code: embed
+---
+
+```{r main calculations}
+# import libraries
+library(shiny)          # shiny framework
+library(ggplot2)        # line chart viz
+library(data.table)     # data munging
+library(flexdashboard)  # dashboard framework
+
+# read data from github ##########################################################################
+d <- rbind(fread("https://raw.githubusercontent.com/johnsug/wt/master/recent_wt.csv"), 
+           fread("https://raw.githubusercontent.com/johnsug/wt/master/archived_wt.csv"))
+d$Date <- as.Date(d$Date, format="%m/%d/%Y")
+d$Year <- as.numeric(substr(d$Date,1,4))
+
+# plots ##########################################################################################
+
+# 2014
+output$plot_14 <- renderPlot({
+  ggplot(d[Year==2014], aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(color=6, level=0, size=.5)
+})
+
+# 2016
+output$plot_16 <- renderPlot({
+  ggplot(rbind(d[Date==as.Date("2017-01-01")], d[Year==2016]), aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(color=6, level=0, size=.5)
+})
+
+# 2017
+output$plot_17 <- renderPlot({
+  ggplot(d[Year==2017], aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(color=6, level=0, size=.5)
+})
+
+# 2016-2017
+output$plot_16_to_17 <- renderPlot({
+  ggplot(d[Year %in% 2016:2017], aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(color=6, level=0, size=.5)
+})
+
+# 2014-2017
+output$plot_14_to_17 <- renderPlot({
+  ggplot(d, aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(color=6, level=0, size=.5)
+})
+
+# coef table
+
+
+```
+
+Row {data-height=250}
+---------------------------------------
+
+### 2017
+```{r}
+plotOutput("plot_17")
+```
+
+### 2016
+```{r}
+plotOutput("plot_16")
+```
+
+### 2014
+```{r}
+plotOutput("plot_14")
+```
+
+Row {data-height=250}
+---------------------------------------
+
+### 2017 Projections
+```{r}
+tableOutput("coef_dt")
+```
+
+### 2014-2017
+```{r}
+plotOutput("plot_14_to_17")
+```
+
+### 2016-2017
+```{r}
+plotOutput("plot_16_to_17")
+```
