@@ -31,18 +31,18 @@ d$Year <- as.numeric(substr(d$Date,1,4))
 output$plot_14 <- renderPlot({
   ggplot(d[Year==2014], aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(color=6, level=0, size=.5) +
+    geom_smooth(color=6, level=0, size=.5, method="loess") +
     xlim(as.Date("2014-01-01"), as.Date("2015-01-01")) + 
-    labs(x="")
+    labs(x="", y="")
 })
 
 # 2016
 output$plot_16 <- renderPlot({
   ggplot(rbind(d[Date==as.Date("2017-01-01")], d[Year==2016]), aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(color=6, level=0, size=.5) +
+    geom_smooth(color=6, level=0, size=.5, method="loess") +
     xlim(as.Date("2016-01-01"), as.Date("2017-01-01")) + 
-    labs(x="")
+    labs(x="", y="")
 })
 
 # 2017
@@ -59,7 +59,7 @@ output$plot_16_to_17 <- renderPlot({
   ggplot(d[Year %in% 2016:2017], aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
     geom_smooth(color=6, level=0, size=.5, method="loess", span=0.5) + 
-    labs(x="")
+    labs(x="", y="")
 })
 
 # 2014-2017
@@ -68,7 +68,7 @@ output$plot_14_to_17 <- renderPlot({
   ggplot(d, aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
     geom_smooth(color=6, level=0, size=.5, method="loess", span=0.25) + 
-    labs(x="")
+    labs(x="", y="")
 })
 
 # coef table
