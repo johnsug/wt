@@ -38,7 +38,7 @@ output$plot_since_14 <- renderPlot({
   ggplot(d, aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
     geom_smooth(data=d[Date %between% c("2014-01-01", "2017-01-05")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.25) + 
-    geom_smooth(data=d[Date %between% c("2017-01-01", "2018-01-01")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.35) + 
+    geom_smooth(data=d[Date >= "2017-01-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.35) + 
     labs(x="", y="Weight (Lbs)")
 })
 
