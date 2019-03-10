@@ -4,9 +4,9 @@ runtime: shiny
 output:
   flexdashboard::flex_dashboard:
     orientation: rows
-    source_code: embed
+  source_code: embed
 ---
-
+  
 ```{r main calculations}
 # import libraries
 library(curl)           # needed for fread to call in github data files
@@ -28,20 +28,22 @@ d$Year <- as.numeric(substr(d$Date,1,4))
 output$plot_keto <- renderPlot({
   ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date <= "2018-07-31"][Date > "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
-    geom_smooth(data=d[Date >= "2018-09-03"], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
+    geom_smooth(data=d[Date %between% c("2017-10-01", "2018-07-31")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
+    geom_smooth(data=d[Date %between% c("2018-09-03", "2019-03-03")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
+    #geom_smooth(data=d[Date %between% c("2018-11-30", "2019-01-03")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
+    geom_smooth(data=d[Date >= "2019-03-08"], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
-
 
 # Since 2014
 output$plot_since_14 <- renderPlot({
   ggplot(d, aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
     geom_smooth(data=d[Date <= "2017-01-05"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.25) + 
-    geom_smooth(data=d[Date >= "2017-01-01"][Date <= "2018-07-31"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.35) + 
-    geom_smooth(data=d[Date >= "2018-09-03"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.8) + 
+    geom_smooth(data=d[Date %between% c("2017-01-01", "2018-07-31")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.5) + 
+    geom_smooth(data=d[Date %between% c("2018-09-03", "2019-03-03")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.5) + 
+    geom_smooth(data=d[Date >= "2019-03-08"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.25) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
@@ -51,7 +53,7 @@ output$plot_since_14 <- renderPlot({
 
 Row {data-height=250}
 ---------------------------------------
-
+  
 ### Keto Loss
 ```{r}
 plotOutput("plot_keto")
