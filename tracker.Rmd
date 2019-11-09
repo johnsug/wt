@@ -9,6 +9,68 @@ output:
   
 ```{r main calculations}
 # import libraries
+---
+title: "Weight Tracker"
+runtime: shiny
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+  source_code: embed
+---
+  
+```{r main calculations}
+# import libraries
+library(curl)           # needed for fread to call in github data files
+library(shiny)          # shiny framework
+library(ggplot2)        # line chart viz
+library(data.table)     # data munging
+library(flexdashboard)  # dashboard framework
+
+# read data from github ##########################################################################
+d <- rbind(fread("https://raw.githubusercontent.com/johnsug/wt/master/recent_wt.csv"), 
+           fread("https://raw.githubusercontent.com/johnsug/wt/master/archived_wt.csv"))
+d$Date <- as.Date(d$Date, format="%m/%d/%Y")
+d$Year <- as.numeric(substr(d$Date,1,4))
+
+# plots ##########################################################################################
+
+# Since Keto
+##lm, glm, gam, loess, rlm
+output$plot_keto <- renderPlot({
+  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.20) + 
+    labs(x="", y="Weight (Lbs)") + 
+    theme_minimal()
+})
+
+# Since 2014
+output$plot_since_14 <- renderPlot({
+  ggplot(d, aes(x=Date, y=Weight)) + 
+    geom_point(color="dodgerblue", size=1) + 
+    geom_smooth(data=d[Date <= "2017-01-05"], color=6, fill=6, alpha=.15, size=.5, met02hod="loess", span=0.30) + 
+    geom_smooth(data=d[Date %between% c("2017-01-01", "2017-10-01")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.50) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.20) + 
+    labs(x="", y="Weight (Lbs)") + 
+    theme_minimal()
+})
+
+
+```
+
+Row {data-height=250}
+---------------------------------------
+  
+### Keto Loss
+```{r}
+plotOutput("plot_keto")
+```
+
+### Since 2014
+```{r}
+plotOutput("plot_since_14")
+```
+
 library(shiny)          # shiny framework
 library(ggplot2)        # line chart viz
 library(data.table)     # data munging
