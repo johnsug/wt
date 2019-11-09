@@ -9,7 +9,6 @@ output:
   
 ```{r main calculations}
 # import libraries
-library(curl)           # needed for fread to call in github data files
 library(shiny)          # shiny framework
 library(ggplot2)        # line chart viz
 library(data.table)     # data munging
@@ -28,10 +27,7 @@ d$Year <- as.numeric(substr(d$Date,1,4))
 output$plot_keto <- renderPlot({
   ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date %between% c("2017-10-01", "2018-07-31")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
-    geom_smooth(data=d[Date %between% c("2018-09-03", "2019-03-03")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
-    #geom_smooth(data=d[Date %between% c("2018-11-30", "2019-01-03")], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
-    geom_smooth(data=d[Date >= "2019-03-08"], color=6, fill=6, alpha=.15, size=.5, method="loess") + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.20) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
@@ -40,10 +36,9 @@ output$plot_keto <- renderPlot({
 output$plot_since_14 <- renderPlot({
   ggplot(d, aes(x=Date, y=Weight)) + 
     geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date <= "2017-01-05"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.25) + 
-    geom_smooth(data=d[Date %between% c("2017-01-01", "2018-07-31")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.5) + 
-    geom_smooth(data=d[Date %between% c("2018-09-03", "2019-03-03")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.5) + 
-    geom_smooth(data=d[Date >= "2019-03-08"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=.25) + 
+    geom_smooth(data=d[Date <= "2017-01-05"], color=6, fill=6, alpha=.15, size=.5, met02hod="loess", span=0.30) + 
+    geom_smooth(data=d[Date %between% c("2017-01-01", "2017-10-01")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.50) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.20) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
