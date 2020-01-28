@@ -9,17 +9,6 @@ output:
   
 ```{r main calculations}
 # import libraries
----
-title: "Weight Tracker"
-runtime: shiny
-output:
-  flexdashboard::flex_dashboard:
-    orientation: rows
-  source_code: embed
----
-  
-```{r main calculations}
-# import libraries
 library(curl)           # needed for fread to call in github data files
 library(shiny)          # shiny framework
 library(ggplot2)        # line chart viz
