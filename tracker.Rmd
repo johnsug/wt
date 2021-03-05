@@ -19,6 +19,11 @@ library(flexdashboard)  # dashboard framework
 d <- rbind(fread("https://raw.githubusercontent.com/johnsug/wt/master/recent_wt.csv"), 
            fread("https://raw.githubusercontent.com/johnsug/wt/master/archived_wt.csv"))
 d$Date <- as.Date(d$Date, format="%m/%d/%Y")
+## impute missing values
+frame <- data.table(Date=as.Date(d$Date[dim(d)[1]]:d$Date[1], origin="1970-01-01"))
+d <- data.table(dplyr::left_join(frame, d))
+d[, Int:=round(na_interpolation(d$Weight, option="linear"),1)]
+d[, Rolling:=rollmean(Int, k=7, fill=NA)]
 d$Year <- as.numeric(substr(d$Date,1,4))
 recent <- head(d, 1)
 comps  <- d[Weight %between% c(recent$Weight - 2.5, recent$Weight + 2.5) & Date < recent$Date - 60]
@@ -29,10 +34,20 @@ comps  <- comps[order(Date)]
 # Since Keto
 ##lm, glm, gam, loess, rlm
 output$plot_keto <- renderPlot({
-  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Weight)) + 
-    geom_hline(yintercept=recent$Weight, color=5, size=2, alpha=.5) + 
-    geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.10) + 
+  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling)) + 
+    geom_hline(yintercept=recent$Weight, color="dodgerblue", size=1, alpha=.3) + 
+    # marathons
+    geom_vline(xintercept=as.Date("2018-04-21"), color="orange", size=1, alpha=.3) + 
+    geom_vline(xintercept=as.Date("2018-10-20"), color="orange", size=1, alpha=.3) + 
+    geom_vline(xintercept=as.Date("2018-12-08"), color="orange", size=1, alpha=.3) + 
+    geom_vline(xintercept=as.Date("2019-07-20"), color="orange", size=1, alpha=.3) + 
+    geom_vline(xintercept=as.Date("2019-10-05"), color="orange", size=1, alpha=.3) + 
+    # trail events
+    geom_vline(xintercept=as.Date("2019-04-27"), color="red", size=1, alpha=.3) + 
+    geom_vline(xintercept=as.Date("2020-02-22"), color="red", size=1, alpha=.3) + 
+    # plot and smooth weight
+    geom_line(aes(x=Date, Y=Int), color="dodgerblue", size=1) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.15, size=.5, method="loess", span=0.15) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
