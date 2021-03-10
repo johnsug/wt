@@ -35,22 +35,30 @@ comps  <- comps[order(Date)]
 # Since Keto
 ##lm, glm, gam, loess, rlm
 output$plot_keto <- renderPlot({
-  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling)) + 
+  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Roll2)) + 
     geom_hline(yintercept=recent$Weight, color="dodgerblue", size=1, alpha=.3) + 
     # marathons
     geom_vline(xintercept=as.Date("2018-04-21"), color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-04-21"), y=160, label="Garmin") + 
     geom_vline(xintercept=as.Date("2018-10-20"), color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-10-20"), y=160, label="KC") +   
     geom_vline(xintercept=as.Date("2018-12-08"), color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-12-08"), y=160, label="Buckeye") +   
     geom_vline(xintercept=as.Date("2019-07-20"), color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-07-20"), y=160, label="Oregon") +     
     geom_vline(xintercept=as.Date("2019-10-05"), color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-10-05"), y=160, label="St. George") +   
     # trail events
     geom_vline(xintercept=as.Date("2019-04-27"), color="red", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-04-27"), y=160, label="Free\nState") +     
     geom_vline(xintercept=as.Date("2020-02-22"), color="red", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2020-02-22"), y=160, label="Psycho\nWyco") +     
     # plot and smooth weight
     geom_line(aes(x=Date, Y=Int), color="dodgerblue", size=1) + 
     geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.15, size=.5, method="loess", span=0.15) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
+
 })
 
 # Since 2014
