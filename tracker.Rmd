@@ -26,67 +26,44 @@ d <- data.table(dplyr::left_join(frame, d))
 d[, Int:=round(na_interpolation(d$Weight, option="linear"),1)]
 d[, Rolling:=frollmean(Int, n=7, fill=NA)]
 d$Year <- as.numeric(substr(d$Date,1,4))
-recent <- head(d, 1)
-comps  <- d[Weight %between% c(recent$Weight - 2.5, recent$Weight + 2.5) & Date < recent$Date - 60]
-comps  <- comps[order(Date)]
+recent <- tail(d, 1)
 
 # plots ##########################################################################################
 
-# Since Keto
 ##lm, glm, gam, loess, rlm
-output$plot_keto <- renderPlot({
-  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Roll2)) + 
+output$wt_plot <- renderPlot({
+  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling)) + 
     geom_hline(yintercept=recent$Weight, color="dodgerblue", size=1, alpha=.3) + 
     # marathons
-    geom_vline(xintercept=as.Date("2018-04-21"), color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-04-21"), y=160, label="Garmin") + 
-    geom_vline(xintercept=as.Date("2018-10-20"), color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-10-20"), y=160, label="KC") +   
-    geom_vline(xintercept=as.Date("2018-12-08"), color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-12-08"), y=160, label="Buckeye") +   
-    geom_vline(xintercept=as.Date("2019-07-20"), color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2019-07-20"), y=160, label="Oregon") +     
-    geom_vline(xintercept=as.Date("2019-10-05"), color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2019-10-05"), y=160, label="St. George") +   
+    geom_vline(xintercept=as.Date("2018-04-21")-15, color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-04-21"), y=170, angle=90, hjust=0, label="Garmin") + 
+    geom_vline(xintercept=as.Date("2018-10-20")-15, color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-10-20"), y=170, angle=90, hjust=0, label="Kansas City") +   
+    geom_vline(xintercept=as.Date("2018-12-08")-15, color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2018-12-08"), y=170, angle=90, hjust=0, label="Buckeye") +   
+    geom_vline(xintercept=as.Date("2019-07-20")-15, color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-07-20"), y=180, angle=90, hjust=0, label="Oregon") +     
+    geom_vline(xintercept=as.Date("2019-10-05")-15, color="orange", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-10-05"), y=180, angle=90, hjust=0, label="St. George") +   
     # trail events
-    geom_vline(xintercept=as.Date("2019-04-27"), color="red", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2019-04-27"), y=160, label="Free\nState") +     
-    geom_vline(xintercept=as.Date("2020-02-22"), color="red", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2020-02-22"), y=160, label="Psycho\nWyco") +     
+    geom_vline(xintercept=as.Date("2019-04-27")-15, color="red", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2019-04-27"), y=180, angle=90, hjust=0, label="Free State") +     
+    geom_vline(xintercept=as.Date("2020-02-22")-15, color="red", size=1, alpha=.3) + 
+    annotate("text", x=as.Date("2020-02-22"), y=185, angle=90, hjust=0, label="Psycho Wyco") +     
     # plot and smooth weight
-    geom_line(aes(x=Date, Y=Int), color="dodgerblue", size=1) + 
+    geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1) + 
     geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.15, size=.5, method="loess", span=0.15) + 
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
-
 })
 
-# Since 2014
-output$plot_since_14 <- renderPlot({
-  ggplot(d, aes(x=Date, y=Weight)) + 
-    geom_point(color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date <= "2017-01-05"], color=6, fill=6, alpha=.15, size=.5, met02hod="loess", span=0.30) + 
-    geom_smooth(data=d[Date %between% c("2017-01-01", "2017-10-01")], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.50) + 
-    geom_smooth(data=d[Date >= "2017-10-01"], color=6, fill=6, alpha=.15, size=.5, method="loess", span=0.10) + 
-    labs(x="", y="Weight (Lbs)") + 
-    theme_minimal()
-})
-
-output$comps_table <- renderDataTable(comps)
 
 ```
 
 Row {data-height=250}
 ---------------------------------------
   
-### Keto Loss
+### Rolling Weight Loss
 ```{r}
-dataTableOutput("comps_table")
-
-plotOutput("plot_keto")
-```
-
-### Since 2014
-```{r}
-plotOutput("plot_since_14")
+plotOutput("wt_plot")
 ```
