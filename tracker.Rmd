@@ -36,22 +36,19 @@ d <- data.table(left_join(d, races))
 # plots ##########################################################################################
 
 ##lm, glm, gam, loess, rlm
-ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling, label=Race)) + 
-  # plot and smooth weight
-  geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1, alpha=.7) + 
-  geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.3, size=.5, method="loess", span=0.15) + 
-  # reference points/lines/text
-  geom_point(data=d[!is.na(Race)], aes(x=Date, y=Rolling), size=1, alpha=.5) + 
-  geom_hline(yintercept=recent$Weight, color="orange", size=1.5, alpha=.3) + 
-  geom_text(angle=90, hjust=-0.1, alpha=.7) + 
-  # misc formatting
-  labs(x="", y="Weight") + 
-  theme_minimal()
-
+output$wt_plot <- renderPlot({
+  ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling, label=Race)) + 
+    # plot and smooth weight
+    geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1, alpha=.7) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.3, size=.5, method="loess", span=0.15) + 
+    # reference points/lines/text
+    geom_point(data=d[!is.na(Race)], aes(x=Date, y=Rolling), size=1, alpha=.5) + 
+    geom_hline(yintercept=recent$Weight, color="orange", size=1.5, alpha=.3) + 
+    geom_text(angle=90, hjust=-0.1, alpha=.7) + 
+    # misc formatting
+    labs(x="", y="Weight") + 
+    theme_minimal()
 })
-
-
-#FE53BB
 
 ```
 
