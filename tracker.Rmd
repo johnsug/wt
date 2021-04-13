@@ -10,6 +10,7 @@ output:
 ```{r main calculations}
 # import libraries
 library(curl)           # needed for fread to call in github data files
+library(dplyr)          # joining tables
 library(shiny)          # shiny framework
 library(ggplot2)        # line chart viz
 library(data.table)     # data munging
@@ -22,15 +23,15 @@ d <- rbind(fread("https://raw.githubusercontent.com/johnsug/wt/master/recent_wt.
 d$Date <- as.Date(d$Date, format="%m/%d/%Y")
 ## impute missing values
 frame <- data.table(Date=as.Date(d$Date[dim(d)[1]]:d$Date[1], origin="1970-01-01"))
-d <- data.table(dplyr::left_join(frame, d))
+d <- data.table(left_join(frame, d))
 d[, Int:=round(na_interpolation(d$Weight, option="linear"),1)]
 d[, Rolling:=frollmean(Int, n=7, fill=NA)]
 d$Year <- as.numeric(substr(d$Date,1,4))
 recent <- d[Date==max(Date)]
-
+## join race dates
 races <- data.table(Race=c("Garmin", "Kansas City", "Buckeye", "Free State Trail", "Oregon", "St. George", "Psycho Wyco Toto"), 
                     Date=as.Date(c("2018-04-21", "2018-10-20", "2018-12-08", "2019-04-27", "2019-07-20", "2019-10-05", "2020-02-22")))
-
+d <- data.table(left_join(d, races))
 
 # plots ##########################################################################################
 
