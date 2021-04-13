@@ -26,35 +26,32 @@ d <- data.table(dplyr::left_join(frame, d))
 d[, Int:=round(na_interpolation(d$Weight, option="linear"),1)]
 d[, Rolling:=frollmean(Int, n=7, fill=NA)]
 d$Year <- as.numeric(substr(d$Date,1,4))
-recent <- tail(d, 1)
+recent <- d[Date==max(Date)]
+
+race_weights <- data.table(Race=c("Garmin", "Kansas City", "Buckeye", "Free State Trail", "Oregon", "St. George", "Psycho Wyco Toto"), 
+                           Date=as.Date(c("2018-04-21", "2018-10-20", "2018-12-08", "2019-04-27", "2019-07-20", "2019-10-05", "2020-02-22")), 
+                           Weight=c(165.2, 166.0, 162.2, 172.2, 172.4, 177.6, 183.2))
+
 
 # plots ##########################################################################################
 
 ##lm, glm, gam, loess, rlm
 output$wt_plot <- renderPlot({
   ggplot(d[Date > "2017-10-01"], aes(x=Date, y=Rolling)) + 
-    geom_hline(yintercept=recent$Weight, color="dodgerblue", size=1, alpha=.3) + 
-    geom_vline(xintercept=as.Date("2018-04-21")-5, color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-04-21"), y=170, angle=90, hjust=0, label="Garmin") + 
-    geom_vline(xintercept=as.Date("2018-10-20")-5, color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-10-20"), y=170, angle=90, hjust=0, label="Kansas City") +   
-    geom_vline(xintercept=as.Date("2018-12-08")-5, color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2018-12-08"), y=170, angle=90, hjust=0, label="Buckeye") +   
-    geom_vline(xintercept=as.Date("2019-04-27")-5, color="orange", size=1, alpha=.3) + # color="red
-    annotate("text", x=as.Date("2019-04-27"), y=180, angle=90, hjust=0, label="Free State") +     
-    geom_vline(xintercept=as.Date("2019-07-20")-5, color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2019-07-20"), y=180, angle=90, hjust=0, label="Oregon") +     
-    geom_vline(xintercept=as.Date("2019-10-05")-5, color="orange", size=1, alpha=.3) + 
-    annotate("text", x=as.Date("2019-10-05"), y=180, angle=90, hjust=0, label="St. George") +   
-    geom_vline(xintercept=as.Date("2020-02-22")-5, color="orange", size=1, alpha=.3) + # color="red
-    annotate("text", x=as.Date("2020-02-22"), y=185, angle=90, hjust=0, label="Psycho Wyco") +     
     # plot and smooth weight
-    geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1) + 
-    geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.15, size=.5, method="loess", span=0.15) + 
+    geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1, alpha=.7) + 
+    geom_smooth(data=d[Date >= "2017-10-01"], color="deeppink", fill="deeppink", alpha=.4, size=.5, method="loess", span=0.15) + 
+    # reference points/lines/text
+    geom_point(data=race_weights, aes(x=Date, y=Weight), size=1, color=1, alpha=.7) + 
+    geom_hline(yintercept=recent$Weight, color="#E68E36", size=1, alpha=.3) + 
+    geom_text(data=race_weights, aes(x=Date, y=Weight+2, label=Race), angle=90, hjust=0, alpha=.7) + 
+    # misc formatting
     labs(x="", y="Weight (Lbs)") + 
     theme_minimal()
 })
 
+
+#FE53BB
 
 ```
 
