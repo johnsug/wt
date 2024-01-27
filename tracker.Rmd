@@ -18,6 +18,7 @@ library(flexdashboard)  # dashboard framework
 library(imputeTS)       # TS imputation
 
 # read data from github ##########################################################################
+mp <- fread("https://raw.githubusercontent.com/johnsug/wt/master/parameters.csv")
 d <- rbind(fread("https://raw.githubusercontent.com/johnsug/wt/master/recent_wt.csv"), 
            fread("https://raw.githubusercontent.com/johnsug/wt/master/archived_wt.csv"))
 d$Date <- as.Date(d$Date, format="%m/%d/%Y")
@@ -25,32 +26,44 @@ d$Date <- as.Date(d$Date, format="%m/%d/%Y")
 frame <- data.table(Date=as.Date(d$Date[dim(d)[1]]:d$Date[1], origin="1970-01-01"))
 d <- data.table(left_join(frame, d))
 d[, Int:=round(na_interpolation(d$Weight, option="linear"),1)]
-d[, Rolling:=frollmean(Int, n=7, fill=NA)]
+d[, Rolling:=frollmean(Int, n=as.numeric(mp[parameter=="interpolation_n", value]), fill=NA)]
 d$Year <- as.numeric(substr(d$Date,1,4))
 recent <- d[Date==max(Date)]
 ## join race dates
-races <- data.table(Race=c(##"Garmin", "Kansas City", "Buckeye", "Free State", "Oregon", "St. George", 
-                          "Psycho Wyco", "Free State", "Alamo City", "Cactus Rose", "Bandera 22", 
-                          "Salt Lake", "Sky Island", "Austin Rattler", "Bandera 23", "Elephant Rock", 
-                          "Wasatch", "Bandera 24"), 
-                    Date=as.Date(c(##"2018-04-21", "2018-10-20", "2018-12-08", "2019-04-27", "2019-07-20", "2019-10-05", 
-                                   "2020-02-22", "2021-06-12", "2021-09-11", "2021-10-22", "2022-01-08", 
-                                   "2022-04-23", "2022-09-17", "2022-11-05", "2023-01-07", "2023-08-12",  
-                                   "2023-09-08", "2024-01-13")))
-d <- data.table(left_join(d, races))
+races <- data.table(fread("https://raw.githubusercontent.com/johnsug/wt/master/event_log.csv"))
+races$Date <- lubridate::as_date(races$Date)
+races <- races
+d <- data.table(left_join(d, races))[Date > mp[parameter=="start_date", value]]
 
 # plots ##########################################################################################
 
 ##lm, glm, gam, loess, rlm
 output$wt_plot <- renderPlot({
-  ggplot(d[Date > "2020-01-01"], aes(x=Date, y=Rolling, label=Race)) + ## Previously: 2017-10-01
+  ggplot(d, aes(x=Date, y=Int, label=Race)) + 
     # plot and smooth weight
-    geom_line(aes(x=Date, y=Int), color="dodgerblue", size=1, alpha=.7) + 
-    geom_smooth(data=d[Date >= "2020-01-01"], color="deeppink", fill="deeppink", alpha=.3, size=.5, method="loess", span=0.15) + 
+    geom_point(aes(x=Date, y=Weight), 
+               color=mp[parameter=="point_color", value], 
+               size=as.numeric(mp[parameter=="point_size", value]), 
+               alpha=as.numeric(mp[parameter=="point_alpha", value])) + 
+    geom_smooth(data=d, 
+                color=mp[parameter=="smooth_color", value], 
+                fill=mp[parameter=="smooth_fill", value], 
+                method=mp[parameter=="smooth_method", value], 
+                alpha=as.numeric(mp[parameter=="smooth_alpha", value]), 
+                size=as.numeric(mp[parameter=="smooth_size", value]), 
+                span=as.numeric(mp[parameter=="smooth_span", value])) + 
     # reference points/lines/text
-    geom_point(data=d[!is.na(Race)], aes(x=Date, y=Rolling), size=1, alpha=.5) + 
-    geom_hline(yintercept=recent$Weight, color="orange", size=1.5, alpha=.3) + 
-    geom_text(angle=90, hjust=-0.1, alpha=.7) + 
+    geom_point(data=d[!is.na(Race)], aes(x=Date, y=Int), 
+               size=as.numeric(mp[parameter=="race_size", value]), 
+               alpha=as.numeric(mp[parameter=="race_alpha", value])) + 
+    geom_hline(yintercept=recent$Weight, 
+               color=mp[parameter=="hline_color", value], 
+               size=as.numeric(mp[parameter==
+                                    "hline_size", value]), 
+               alpha=as.numeric(mp[parameter=="hline_alpha", value])) + 
+    geom_text(angle=as.numeric(mp[parameter=="race_name_angle", value]), 
+              hjust=as.numeric(mp[parameter=="race_name_hjust", value]), 
+              alpha=as.numeric(mp[parameter=="race_name_alpha", value])) + 
     # misc formatting
     labs(x="", y="Weight") + 
     theme_minimal()
