@@ -8,7 +8,7 @@ smooth_color,deeppink
 smooth_fill,deeppink
 smooth_alpha,0.30
 smooth_size,0.75
-smooth_span,0.15
+smooth_span,0.05
 smooth_method,loess
 race_size,1.5
 race_alpha,0.75
