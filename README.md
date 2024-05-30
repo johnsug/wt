@@ -1,2 +1,2 @@
 
-quick weight tracking dashboard
+quick weight tracking dashboard: https://johnsug.shinyapps.io/tracker/
